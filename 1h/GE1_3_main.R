@@ -14,8 +14,11 @@ for (i in 1:3) {
   Gene_quantile_75 <-quantile(genes_matrix[i,], probs = c(0.75))
   data2[i,] <- c(genes_matrix[i,], Gene_mean, Gene_max, Gene_min, Gene_quantile_25, Gene_quantile_75)
 }
+
 rownames(data2) <- c("Gene1", "Gene2", "Gene3")
 colnames(data2) <- c("Cell1", "Cell2", "Cell3", "Cell4", "Cell5", "Cell6", "Gene_mean", "Gene_max", "Gen_min", "Gene_quantile_25", "Gene_quantile_75")
+
+row.names(data2)
 
 ##### Print the data  #####
 print("================================================================")
@@ -39,5 +42,12 @@ legend("top", legend = c("Gene1", "Gene2", "Gene3"), fill = c("yellow", "blue", 
 
 ##### Creating the hist :  #####
 v <- prop.table(genes_matrix, margin = 2)
-#hist(as.matrix(prop.table(genes_matrix, margin = 2)), breaks=30, , xlim=c(min(v),max(v)), ylim=c(0, sum(v)))
-hist(as.matrix(prop.table(genes_matrix)), breaks=30)
+v<-prop.table(genes_matrix, margin=2)
+hist(v[,1], breaks=50, col=rgb(1, 1,0, 0.4), ylab = "Number of genes", xlab="Total Cell Expression", main="Cell Histogram")  # Cell1  yellow
+hist(v[,2], breaks=20, col=rgb(0, 0,1, 0.2), add=TRUE)           # Cell2  blue
+hist(v[,3], breaks=20, col=rgb(1, 0,0, 0.2), add=TRUE)           # Cell3  red
+hist(v[,4], breaks=20, col=rgb(1, 1,1, 0.2), add=TRUE)           # Cell4  white
+hist(v[,5], breaks=20, col=rgb(1, 0,1, 0.2), add=TRUE)           # Cell5  magenta
+hist(v[,6], breaks=50, col=rgb(0, 1,0, 0.2), add=TRUE)           # Cell6  green
+
+legend('top', c('Cell1', 'Cell2', 'Cell3', 'Cell4', 'Cell5', 'Cell6'), fill=c('yellow', 'blue', 'red', 'white', 'magenta', 'green'))
