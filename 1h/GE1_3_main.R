@@ -1,3 +1,4 @@
+########### create the genes table attache names to rows and columns ###################
 Gene1 <- c(1, 2, 3, 4, 5, 6)
 Gene2 <- c(0, 2, 4, 6, 8, 10)
 Gene3 <- c(0,1,2,0,1,2)
@@ -5,6 +6,7 @@ genes_matrix <- rbind(Gene1, Gene2, Gene3)
 rownames(genes_matrix) <- c("Gene1", "Gene2", "Gene3")
 colnames(genes_matrix) <- c("Cell1", "Cell2", "Cell3", "Cell4", "Cell5", "Cell6")
 
+########### data2 will the updated genes_matrix table that will contain addition requested data i.e mean, min/max etc #########
 data2 <- matrix(nrow = 3, ncol = 11)
 for (i in 1:3) {
   Gene_mean <- mean(genes_matrix[i,])
@@ -43,11 +45,11 @@ legend("top", legend = c("Gene1", "Gene2", "Gene3"), fill = c("yellow", "blue", 
 ##### Creating the hist :  #####
 v <- prop.table(genes_matrix, margin = 2)
 v<-prop.table(genes_matrix, margin=2)
-hist(v[,1], breaks=50, col=rgb(1, 1,0, 0.4), ylab = "Number of genes", xlab="Total Cell Expression", main="Cell Histogram")  # Cell1  yellow
-hist(v[,2], breaks=20, col=rgb(0, 0,1, 0.2), add=TRUE)           # Cell2  blue
-hist(v[,3], breaks=20, col=rgb(1, 0,0, 0.2), add=TRUE)           # Cell3  red
-hist(v[,4], breaks=20, col=rgb(1, 1,1, 0.2), add=TRUE)           # Cell4  white
-hist(v[,5], breaks=20, col=rgb(1, 0,1, 0.2), add=TRUE)           # Cell5  magenta
-hist(v[,6], breaks=50, col=rgb(0, 1,0, 0.2), add=TRUE)           # Cell6  green
+hist(v[,1], breaks=50, col=rgb(1, 1,0, 0.3), ylab = "Number of genes", xlab="Total Cell Expression", main="Cell Histogram")  # Cell1  yellow
+hist(v[,2], breaks=20, col=rgb(0, 0,1, 0.3), add=TRUE)           # Cell2  blue
+hist(v[,3], breaks=20, col=rgb(1, 0,0, 0.3), add=TRUE)           # Cell3  red
+hist(v[,4], breaks=20, col=rgb(1, 1,1, 0.3), add=TRUE)           # Cell4  white
+hist(v[,5], breaks=20, col=rgb(1, 0,1, 0.3), add=TRUE)           # Cell5  magenta
+hist(v[,6], breaks=50, col=rgb(0, 1,0, 0.3), add=TRUE)           # Cell6  green
 
 legend('top', c('Cell1', 'Cell2', 'Cell3', 'Cell4', 'Cell5', 'Cell6'), fill=c('yellow', 'blue', 'red', 'white', 'magenta', 'green'))

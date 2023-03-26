@@ -9,7 +9,7 @@ for(i in 1:no_rows) {
   x <- substr(data, (i-1)*10+1, i*10)
   data2[i,]<- unlist(strsplit(x, split = ""))
 }
-class(as.String(data2[, 1]))
+class(NLP::as.String(data2[, 1]))
 ################## create pwm ######################################
 
 pwm_matrix <- matrix(0, 4, 10)
@@ -18,7 +18,7 @@ rownames(pwm_matrix) <- seq_elements
 
 for (j in 1:no_columns) {
   for (i in 1:length(seq_elements)) {
-    pwm_matrix[i,j] = (str_count(as.String(data2[, j]), seq_elements[i]))/no_rows
+    pwm_matrix[i,j] = (stringr::str_count(NLP::as.String(data2[, j]), seq_elements[i]))/no_rows
   }
 }
 writeLines("\n")
@@ -39,7 +39,7 @@ for (j in 1:no_columns) {
     entropy_info_matrix[1, j] = entropy_info_matrix[1, j] + (pwm_matrix[i,j] * log2(pwm_matrix[i,j]))
   }
   entropy_info_matrix[1, j] = (-1) * entropy_info_matrix[1, j]  # by definition - we need to multiply by (-1) to get > 0
-  entropy_info_matrix[2, j] = maxH - entropy_matrix[1, j]       # almost euiprobable events have info content close to 0
+  entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # almost equiprobable events have info content close to 0
 }
 writeLines("\n")
 print("Entropy - Info content matrix")

@@ -5,9 +5,9 @@ data <-stringi::stri_rand_strings(1, sequence_length, '[ACGT]')
 class(data)
 
 #################################### load necessary libs ###########################################
-library(NLP)         # only in order to avoid explicit reference using the package name
-library(stringr)
-library(stringi)
+#library(NLP)         # only in order to avoid explicit reference using the package name
+#library(stringr)
+#library(stringi)
 ####################################################################################################
 
 # calc_occurence <- function(strsequence, strpattern)
@@ -35,7 +35,7 @@ rownames(distribution_matrix) <- rbind("element_count", "element_freq")  # name 
 
 ## count i.e. occurence of individual elmements i.e. "A", "G", "T", "C" in the sequence data    ###
 for (i in 1:length(seq_elements)) {
-  distribution_matrix[1, i] = str_count(as.String(data), seq_elements[i])     # get count
+  distribution_matrix[1, i] = stringr::str_count(NLP::as.String(data), seq_elements[i])     # get count
   distribution_matrix[2, i] = distribution_matrix[1, i] / sequence_length     # get frequency
 }
 
@@ -66,7 +66,7 @@ for (i in 1:no_of_substrs) {                 # instead of a single loop with "i 
    start_str <- (i-1)*sub_length+1           # i.e. 1, 501, ..., 4501  etc - calc start of substr
    end_str   <- start_str + sub_length -1    # i.e  500, 1000, ..., 4500 etc - calc end of substr
    for (j in 1:length(GC_seq_elements)) {
-      pattern_distrib_matrix[1, i] <- pattern_distrib_matrix[1, i] + str_count(substr(data, start_str, end_str), GC_seq_elements[j])
+      pattern_distrib_matrix[1, i] <- pattern_distrib_matrix[1, i] + stringr::str_count(substr(data, start_str, end_str), GC_seq_elements[j])
    }
 }
 for (i in 1:no_of_substrs){
