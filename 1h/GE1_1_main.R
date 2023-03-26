@@ -4,19 +4,6 @@ sequence_length <- 5000
 data <-stringi::stri_rand_strings(1, sequence_length, '[ACGT]')
 class(data)
 
-#################################### load necessary libs ###########################################
-#library(NLP)         # only in order to avoid explicit reference using the package name
-#library(stringr)
-#library(stringi)
-####################################################################################################
-
-# calc_occurence <- function(strsequence, strpattern)
-# {
-#     len <- stri_length(strsequence)
-#     occ <- str_count(strsequence, strpattern)
-#     return(list(occ, occ/len))
-# }
-
 ### First Question #################################################################################
 ### In the given sequence
 ###   a. find the distribution of the individual elements
@@ -35,7 +22,7 @@ rownames(distribution_matrix) <- rbind("element_count", "element_freq")  # name 
 
 ## count i.e. occurence of individual elmements i.e. "A", "G", "T", "C" in the sequence data    ###
 for (i in 1:length(seq_elements)) {
-  distribution_matrix[1, i] = stringr::str_count(NLP::as.String(data), seq_elements[i])     # get count
+  distribution_matrix[1, i] = stringr::str_count(toString(data), seq_elements[i])     # get count
   distribution_matrix[2, i] = distribution_matrix[1, i] / sequence_length     # get frequency
 }
 
@@ -61,6 +48,8 @@ GC_seq_elements <- c("C", "G")
 ##   first row:  number of "G & "C" occurences per substr of length 500
 ##   second row: frequency  of "G & "C" occurences per substr of length 500
 pattern_distrib_matrix <- matrix(0, 2, no_of_substrs)
+colnames(pattern_distrib_matrix) <- c("pos1", "pos2", "pos3", "pos4", "pos5", "pos6", "pos7", "pos8", "pos9", "pos10")
+rownames(pattern_distrib_matrix) <- rbind("number of G+C content", "relative freq of G+C content")
 
 for (i in 1:no_of_substrs) {                 # instead of a single loop with "i in seq format"
    start_str <- (i-1)*sub_length+1           # i.e. 1, 501, ..., 4501  etc - calc start of substr
