@@ -4,6 +4,7 @@ sequence_length <- 5000
 data <-stringi::stri_rand_strings(1, sequence_length, '[ACGT]')
 class(data)
 
+
 ### First Question #################################################################################
 ### In the given sequence
 ###   a. find the distribution of the individual elements
@@ -66,5 +67,11 @@ writeLines("\n")
 pattern_distrib_matrix
 
 ###   (kind of of) simple scatter plot
-x <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-plot(pattern_distrib_matrix[2,])
+xtick<-seq(1, 10, by=1)
+plot(pattern_distrib_matrix[2,], col = "blue", pch = 19, main = "visualize Chargaff relations", ylab = "G+C freq", xlab = "id pos in substr")
+axis(1, xtick)
+meanv <- mean(pattern_distrib_matrix[2,])
+stdv  <- sd(pattern_distrib_matrix[2,])
+abline(h=meanv, lwd=1.5, col="red")
+abline(h=meanv-stdv, lwd=1.5, col="green")
+abline(h=meanv+stdv, lwd=1.5, col="green")
