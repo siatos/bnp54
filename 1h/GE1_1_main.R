@@ -31,9 +31,17 @@ for (i in 1:length(seq_elements)) {
 writeLines("\n")
 print(distribution_matrix)
 writeLines("\n")
+####### export results to excel ##########
+library(writexl)
+write_xlsx(as.data.frame(distribution_matrix), 'distribution_matrix.xlsx')
+####### export results to excel ##########
+writeLines("\n")
 sprintf("2nd Chargaff law (occ): A~T: % d - % d  G~C: % d - %d", distribution_matrix[1, 1], distribution_matrix[1, 3], distribution_matrix[1,2], distribution_matrix[1, 4])
 sprintf("2nd Chargaff law (frq): A~T: % f - % f  G~C: % f - %f", distribution_matrix[2, 1], distribution_matrix[2, 3], distribution_matrix[2,2], distribution_matrix[2, 4])
 writeLines("\n")
+
+
+
 
 ### Second Question ################################################################################
 ### split given data sequence into 10 substrings each of 500 chars (500 x 10)
@@ -49,7 +57,7 @@ GC_seq_elements <- c("C", "G")
 ##   first row:  number of "G & C" occurrences per substr of length 500
 ##   second row: frequency  of "G & C" occurrences per substr of length 500
 pattern_distrib_matrix <- matrix(0, 2, no_of_substrs)
-colnames(pattern_distrib_matrix) <- c("pos1", "pos2", "pos3", "pos4", "pos5", "pos6", "pos7", "pos8", "pos9", "pos10")
+colnames(pattern_distrib_matrix) <- c("sseq1", "sseq2", "sseq3", "sseq4", "sseq5", "sseq", "sseq7", "sseq8", "sseq9", "sseq10")
 rownames(pattern_distrib_matrix) <- rbind("number of G+C content", "relative freq of G+C content")
 
 for (i in 1:no_of_substrs) {                 # instead of a single loop with "i in seq format"
@@ -64,11 +72,15 @@ for (i in 1:no_of_substrs){
 }
 
 writeLines("\n")
-pattern_distrib_matrix
+print(pattern_distrib_matrix)
+writeLines("\n")
+####### export results to excel ##########
+write_xlsx(as.data.frame(pattern_distrib_matrix), 'pattern_distrib_matrix.xlsx')
+####### export results to excel ##########
 
 ###   (kind of of) simple scatter plot
 xtick<-seq(1, 10, by=1)
-plot(pattern_distrib_matrix[2,], col = "blue", pch = 19, main = "visualize Chargaff relations", ylab = "G+C freq", xlab = "id pos in substr")
+plot(pattern_distrib_matrix[2,], col = "blue", pch = 19, main = "visualize G+C content", ylab = "G+C freq", xlab = "id pos in subseq")
 axis(1, xtick)
 meanv <- mean(pattern_distrib_matrix[2,])
 stdv  <- sd(pattern_distrib_matrix[2,])
