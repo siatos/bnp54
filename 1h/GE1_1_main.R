@@ -12,7 +12,7 @@ class(data)
 print("Ans: 1st Q =================================================================================")
 ####################################################################################################
 
-####################################### Initialze vars #############################################
+####################################### Initialize vars #############################################
 ### For the 4 elements i.e. "A", "G", "T", "C" of the sequence create a 2x4 matrix         #########
 ### to hold number of appearances i.e. count and frequency                                 #########
 ####################################################################################################
@@ -21,7 +21,7 @@ seq_elements <- c("A", "G", "T", "C")
 colnames(distribution_matrix) <- seq_elements                            # name the columns
 rownames(distribution_matrix) <- rbind("element_count", "element_freq")  # name the rows
 
-## count i.e. occurence of individual elmements i.e. "A", "G", "T", "C" in the sequence data    ###
+## count i.e. occurrence of individual elements i.e. "A", "G", "T", "C" in the sequence data    ###
 for (i in 1:length(seq_elements)) {
   distribution_matrix[1, i] = stringr::str_count(toString(data), seq_elements[i])     # get count
   distribution_matrix[2, i] = distribution_matrix[1, i] / sequence_length     # get frequency
@@ -37,7 +37,7 @@ writeLines("\n")
 
 ### Second Question ################################################################################
 ### split given data sequence into 10 substrings each of 500 chars (500 x 10)
-###     find number of occurence of GC pattern in each of the 10 substrings
+###     find number of occurrence of GC pattern in each of the 10 substrings
 print("Ans: 2nd Q  G+C content in 10 substrs of length 500 ========================================")
 ####################################################################################################
 
@@ -46,8 +46,8 @@ no_of_substrs <-  sequence_length / sub_length
 GC_seq_elements <- c("C", "G")
 
 ## define a 2x10 matrix to hold
-##   first row:  number of "G & "C" occurences per substr of length 500
-##   second row: frequency  of "G & "C" occurences per substr of length 500
+##   first row:  number of "G & C" occurrences per substr of length 500
+##   second row: frequency  of "G & C" occurrences per substr of length 500
 pattern_distrib_matrix <- matrix(0, 2, no_of_substrs)
 colnames(pattern_distrib_matrix) <- c("pos1", "pos2", "pos3", "pos4", "pos5", "pos6", "pos7", "pos8", "pos9", "pos10")
 rownames(pattern_distrib_matrix) <- rbind("number of G+C content", "relative freq of G+C content")
