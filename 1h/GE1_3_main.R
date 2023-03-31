@@ -47,7 +47,7 @@ boxplot.matrix(t(genes_matrix), xlab="Genes ", ylab="values")
 print("######################### Prop table ############################")
 prop.table(genes_matrix, margin = 2)
 
-##### Creting the barplot : setting colors labels & legend #####
+##### Creating the barplot : setting colors labels & legend #####
 barplot(prop.table(genes_matrix, margin = 2), beside=TRUE, col = c("yellow", "blue", "red"), main = "Gene Fequencies in each Cell", ylim=c(0.0,1.0), xlab="Gene participation on each Cell", ylab="Gene contribution")
 legend("top", legend = c("Gene1", "Gene2", "Gene3"), fill = c("yellow", "blue", "red"))
 
