@@ -45,7 +45,7 @@ writeLines("\n")
 
 ### Second Question ################################################################################
 ### split given data sequence into 10 substrings each of 500 chars (500 x 10)
-###     find number of occurrence of GC pattern in each of the 10 substrings
+###     find number of occurrences of GC pattern in each of the 10 substrings
 print("Ans: 2nd Q  G+C content in 10 substrs of length 500 ========================================")
 ####################################################################################################
 
@@ -85,5 +85,6 @@ axis(1, xtick)
 meanv <- mean(pattern_distrib_matrix[2,])
 stdv  <- sd(pattern_distrib_matrix[2,])
 abline(h=meanv, lwd=1.5, col="red")
+
 abline(h=meanv-stdv, lwd=1.5, col="green")
 abline(h=meanv+stdv, lwd=1.5, col="green")

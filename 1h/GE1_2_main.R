@@ -25,11 +25,15 @@ for (j in 1:no_columns) {
 writeLines("\n")
 print(pwm_matrix)
 writeLines("\n")
+####### export results to excel ##########
+library(writexl)
+write_xlsx(as.data.frame(pwm_matrix), 'pwm_matrix.xlsx')
+####### export results to excel ##########
 
 ####################################### Shannon Entropy ##############################################
 ## create a 2x10 entropy & info content matrix
 ## first row: entropy at each pos 1 to 10
-## second row: info content at each pos 1 to 0.
+## second row: info content at each pos 1 to 10.
 ######################################################################################################
 entropy_info_matrix <- matrix(0, nrow = 2, ncol = no_columns)    # entropy and info content matrix
 colnames(entropy_info_matrix) <- c("pos1", "pos2", "pos3", "pos4", "pos5", "pos6", "pos7", "pos8", "pos9", "pos10")
@@ -47,3 +51,6 @@ writeLines("\n")
 print("Entropy - Info content matrix")
 print(entropy_info_matrix)
 writeLines("\n")
+####### export results to excel ##########
+write_xlsx(as.data.frame(entropy_info_matrix), 'entropy_info_matrix.xlsx')
+####### export results to excel ##########

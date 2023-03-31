@@ -18,7 +18,7 @@ for (i in 1:3) {
 }
 
 rownames(data2) <- c("Gene1", "Gene2", "Gene3")
-colnames(data2) <- c("Cell1", "Cell2", "Cell3", "Cell4", "Cell5", "Cell6", "Gene_mean", "Gene_max", "Gen_min", "Gene_quantile_25", "Gene_quantile_75")
+colnames(data2) <- c("Cell1", "Cell2", "Cell3", "Cell4", "Cell5", "Cell6", "Gene Μean", "Gene Μax", "Gen Μin", "Gene 25quant", "Gene 75quant")
 
 row.names(data2)
 
@@ -26,9 +26,18 @@ row.names(data2)
 print("================================================================")
 print("####################### Genes table ############################")
 print(genes_matrix)
+####### export results to excel ##########
+library(writexl)
+write_xlsx(as.data.frame(genes_matrix), 'genes_matrix.xlsx')
+####### export results to excel ##########
+
 print("####################### Updated Genes Table #####################")
 print("Updated Genes Table ")
 print(data2)
+####### export results to excel ##########
+library(writexl)
+write_xlsx(as.data.frame(data2), 'data2.xlsx')
+####### export results to excel ##########
 
 
 ##### Create the boxplot  #####
