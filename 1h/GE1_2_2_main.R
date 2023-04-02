@@ -6,7 +6,7 @@ data <-stringi::stri_rand_strings(1, 5000, '[ACGT]')
 ##### we could use this instead of Hmax = 2 that assumes    ########
 ##### equipropable events with prob 0.25 each               ########
 
-Hmax_derived <- 0                                           # init to 0
+H_derived <- 0                                           # init to 0
 seq_elements <- c("A", "G", "C", "T")                       # we have 4 base noucleotides
 distribution_matrix <- matrix(0, 1, 4)                      # used to store p(element_occur)*log2(element_occur), elements: G,C,T,A
                                                             # for Entropy (H) calculation using local freq and not H =2 i.e equiprobale
@@ -17,11 +17,11 @@ for (i in 1:length(seq_elements)) {
   distribution_matrix[1, i] <- distribution_matrix[1, i] / 5000                       # get freq of occurrence globally
   total_freq_matrix[1, i] <- distribution_matrix[1, i]                                # to be used for pssm 
   distribution_matrix[1, i] <- distribution_matrix[1, i] * log2(distribution_matrix[1, i])
-  Hmax_derived <- Hmax_derived + distribution_matrix[1, i]
+  H_derived <- H_derived + distribution_matrix[1, i]
 }
 
-Hmax_derived <- Hmax_derived *(-1)    ## by definition 
-print(Hmax_derived)
+H_derived <- H_derived *(-1)    ## by definition 
+print(H_derived)
 
 
 no_rows    <-500                # break the initial sequence of 5000 chars
@@ -85,12 +85,12 @@ for (j in 1:no_columns) {
 }
 
 ### for info content for pos 1..10 of the motif - we calculate 2 cases ####
-###    first:   assuming Hmax = 2 i.e. euiprobable events with probability 0.25
-###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string
+###    first:   assuming H initial = HmaxHmax = 2 i.e. euiprobable events with probability 0.25
+###   second:   using Hm_derived above which very close to 2 since we randomly initialized our string
 ###
 ### print also total info content for each case
 
-Hvec <- c(2, Hmax_derived)
+Hvec <- c(2, H_derived)
 print(Hvec)
 
 for (h in 1:2) {

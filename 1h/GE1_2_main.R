@@ -5,17 +5,17 @@ data <-stringi::stri_rand_strings(1, 5000, '[ACGT]')
 ##### calculate Entropy of the original sequence            ########
 ##### we could use this instead of Hmax = 2 that assumes    ########
 ##### equipropable events with prob 0.25 each               ########
-Hmax_derived <- 0                                   # init to 0
+H_derived <- 0                                      # init to 0
 seq_elements <- c("A", "G", "C", "T")               # we have 4 base noucleotides
 distribution_matrix <- matrix(0, 1, 4)              # used to store p(element_occur)*log2(element_occur), elements: G,C,T,A
 for (i in 1:length(seq_elements)) {
   distribution_matrix[1, i] = stringr::str_count(toString(data), seq_elements[i])     # get count
   distribution_matrix[1, i] <- distribution_matrix[1, i] / 5000                       # get freq 
   distribution_matrix[1, i] <- distribution_matrix[1, i] * log2(distribution_matrix[1, i])
-  Hmax_derived <- Hmax_derived + distribution_matrix[1, i]
+  H_derived <- H_derived + distribution_matrix[1, i]
 }
-Hmax_derived <- Hmax_derived *(-1)    ## by definition 
-print(Hmax_derived)
+H_derived <- H_derived *(-1)    ## by definition 
+print(H_derived)
 
 
 no_rows    <-500              # break the initial sequence of 5000 chars
@@ -66,19 +66,19 @@ for (j in 1:no_columns) {
 
 
 ### for info content for pos 1..10 of the motif - we calculate 2 cases ####
-###    first:   assuming Hmax = 2 i.e. euiprobable events with probability 0.25
-###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string 
+###    first:   assuming H initial = Hmax = 2 i.e. euiprobable events with probability 0.25
+###   second:   using H_derived above which very close to 2 since we randomly initialized our string 
 ###
 ### print also total info content for each case
 
 
-Hvec <- c(2, Hmax_derived)
+Hvec <- c(2, H_derived)
 for (h in 1:2) {
-  maxH <- Hvec[h]                # run for each H  
+  dH <- Hvec[h]                # run for each H  
   total_info_content <- 0
   
   for (j in 1:no_columns) {
-    entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # info content
+    entropy_info_matrix[2, j] = dH - entropy_info_matrix[1, j]  # info content
     total_info_content <- total_info_content + entropy_info_matrix[2, j]  
   }   
   writeLines("\n")
