@@ -64,22 +64,30 @@ for (j in 1:no_columns) {
   entropy_info_matrix[1, j] = (-1) * entropy_info_matrix[1, j]  # by definition 
 }
 
+
 ### for info content for pos 1..10 of the motif - we calculate 2 cases ####
 ###    first:   assuming Hmax = 2 i.e. euiprobable events with probability 0.25
-###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string  
+###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string 
+###
+### print also total info content for each case
+
+
 Hvec <- c(2, Hmax_derived)
 for (h in 1:2) {
   maxH <- Hvec[h]                # run for each H  
+  total_info_content <- 0
+  
   for (j in 1:no_columns) {
-    entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # info content    
+    entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # info content
+    total_info_content <- total_info_content + entropy_info_matrix[2, j]  
   }   
   writeLines("\n")
-  print("Entropy - Info content matrix")
+  print(paste("Entropy - Info content matrix using H = ", toString(Hvec[h]), sep = ""))
   print(entropy_info_matrix)
   writeLines("\n")
   
-  ##write_xlsx(as.data.frame(entropy_info_matrix), paste('entropy_info_matrix.xlsx')
+  print(paste("Total info content for H = ", toString(Hvec[h]), "is - total = ", toString(total_info_content, sep = "")))
   write_xlsx(as.data.frame(entropy_info_matrix), paste("entropy_info_matrix", toString(h),".xlsx", sep="_"))
-  
+
 }
 

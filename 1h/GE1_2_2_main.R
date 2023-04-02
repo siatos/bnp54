@@ -9,27 +9,30 @@ data <-stringi::stri_rand_strings(1, 5000, '[ACGT]')
 Hmax_derived <- 0                                           # init to 0
 seq_elements <- c("A", "G", "C", "T")                       # we have 4 base noucleotides
 distribution_matrix <- matrix(0, 1, 4)                      # used to store p(element_occur)*log2(element_occur), elements: G,C,T,A
-total_freq_matrix <- matrix(0, 1, 4)                        # used to stor freq occurence for each element from original seq 
+                                                            # for Entropy (H) calculation using local freq and not H =2 i.e equiprobale
+total_freq_matrix <- matrix(0, 1, 4)                        # used to store freq occurrence for each element from original seq 
 
 for (i in 1:length(seq_elements)) {
-  distribution_matrix[1, i] = stringr::str_count(toString(data), seq_elements[i])     # get count
-  distribution_matrix[1, i] <- distribution_matrix[1, i] / 5000                       # get freq 
+  distribution_matrix[1, i] = stringr::str_count(toString(data), seq_elements[i])     # get count of each element globally
+  distribution_matrix[1, i] <- distribution_matrix[1, i] / 5000                       # get freq of occurrence globally
   total_freq_matrix[1, i] <- distribution_matrix[1, i]                                # to be used for pssm 
   distribution_matrix[1, i] <- distribution_matrix[1, i] * log2(distribution_matrix[1, i])
   Hmax_derived <- Hmax_derived + distribution_matrix[1, i]
 }
+
 Hmax_derived <- Hmax_derived *(-1)    ## by definition 
 print(Hmax_derived)
 
 
-no_rows    <-500              # break the initial sequence of 5000 chars
-no_columns <- 10              # into 500 substrs each having length 10
+no_rows    <-500                # break the initial sequence of 5000 chars
+no_columns <- 10                # into 500 substrs each having length 10
 data2 <- matrix(nrow = no_rows, ncol = no_columns)
 for(i in 1:no_rows) {
   x <- substr(data, (i-1)*10+1, i*10)
   data2[i,]<- unlist(strsplit(x, split = ""))
 }
 class(toString(data2[, 1]))
+
 ################## create pwm ######################################
 
 pwm_matrix <- matrix(0, 4, 10)
@@ -49,6 +52,8 @@ writeLines("\n")
 library(writexl)
 write_xlsx(as.data.frame(pwm_matrix), 'pwm_matrix.xlsx')
 
+
+################## create pssm ######################################
 pssm_matrix <- matrix(0, 4, 10)
 for (j in 1:no_columns) {
   for (i in 1:length(seq_elements)) {
@@ -81,19 +86,28 @@ for (j in 1:no_columns) {
 
 ### for info content for pos 1..10 of the motif - we calculate 2 cases ####
 ###    first:   assuming Hmax = 2 i.e. euiprobable events with probability 0.25
-###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string  
+###   second:   using Hmax_derived above which very close to 2 since we randomly initialized our string
+###
+### print also total info content for each case
+
 Hvec <- c(2, Hmax_derived)
+print(Hvec)
+
 for (h in 1:2) {
-  maxH <- Hvec[h]                # run for each H  
+  maxH <- Hvec[h]                # run for each H
+  total_info_content <- 0
   for (j in 1:no_columns) {
-    entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # info content    
-  }   
+    entropy_info_matrix[2, j] = maxH - entropy_info_matrix[1, j]  # info content
+    total_info_content <- total_info_content + entropy_info_matrix[2, j]
+  }
+  
   writeLines("\n")
   print(paste("Entropy - Info content matrix using H = ", toString(Hvec[h]), sep = ""))
   print(entropy_info_matrix)
   writeLines("\n")
   
-  ##write_xlsx(as.data.frame(entropy_info_matrix), paste('entropy_info_matrix.xlsx')
+  print(paste("Total info content for H = ", toString(Hvec[h]), "is - total = ", toString(total_info_content, sep = "")))
+  writeLines("\n")
   write_xlsx(as.data.frame(entropy_info_matrix), paste("entropy_info_matrix", toString(h),".xlsx", sep="_"))
   
 }
