@@ -57,18 +57,6 @@ class(scale_data)
 boxplot(as.data.frame(t(scale_data)), xlab="samples", ylab="values", main="boxplot scale data")
 ###################################################################################
 
-################## θέμα 3: Q4 a-d  ################################################
-## anova
-
-aov_data <- cbind(stack(log_data[1:2]), stack(log_data[3:4]), stack(log_data[5:6]), stack(log_data[7:8]))
-aov_data <- aov_data[ , c(1,3,5,7, 2, 4, 6, 8)]
-aov_data <- cbind(stack(aov_data[1:4]), stack(log_data[5:8]))
-
-#aov_results <- aov(values ~ ind, data = comb)
-#pval <- summary(aov_results)[[1]][["Pr(>F)"]][[1]]
-#pval
-###################################################################################
-
 
 ################## θέμα 3: Q3 a-b  ################################################
 log_data_adult <- log_data[, c("brain.1", "brain.2", "liver.1", "liver.2")]
@@ -82,7 +70,8 @@ log_data_mean <- data.frame(log_data_mean)
 log2FC <- data.frame(log_data_mean$adult - log_data_mean$fetal)
 colnames(log2FC) <- c('log2FC')
 
-## extended loga data: all columns plus means for each gene - two groups and respective log2FC value total 10 columns 
+
+## extended log data: all columns plus means for each gene - two groups and respective log2FC value total 10 columns 
 ext_log_data <- data.frame(cbind(log_data_adult, log_data_fetal, log_data_mean, abs(log2FC)))
 
 ## select all rows with abs(log2FC) > 2 and order in desc order: from 12616 -> 525 objects
@@ -100,7 +89,7 @@ heatmap(heat_log_data)
 
 ## t-test
 ncols <- ncol(ext_log_data)
-nrows <- nrow (ext_log_data)
+nrows <- nrow(ext_log_data)
 
 pvalues <- matrix(nrow=nrows, ncol=1)
 for(i in 1:nrows) {
@@ -115,23 +104,37 @@ ext_log_data_with_adjusted <- data.frame(cbind(ext_log_data, pvalues))
 ext_log_data_with_adjusted <- dplyr::filter(ext_log_data_with_adjusted, pvalues < 0.05)
 ext_log_data_with_adjusted
 
-## select all data columnsfor heatmap only
+## select all data columns for heatmap only
 heat_log_data_adjusted <- as.matrix(ext_log_data_with_adjusted[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
 
 ## heatmap of (sorted in desc order) log2 data with abs(log2FC) > 2 and fdr < 0.05
 heatmap(heat_log_data_adjusted)
+
 ###################################################################################
 
 ################## θέμα 3: Q4 a-d  ################################################
 ## anova
 
-aov_data <- cbind(stack(log_data[1:2]), stack(log_data[3:4]), stack(log_data[5:6]), stack(log_data[7:8]))
-aov_data <- aov_data[ , c(1,3,5,7, 2, 4, 6, 8)]
-aov_data <- cbind(stack(aov_data[1:4]), stack(log_data[5:8]))
+list <- c(1, 1, 2, 2, 3, 3, 4, 4) #set the groups for comparison brain.1-2 = 1 liver1-2 = 2 etc  
+group <- factor(list)
 
-#aov_results <- aov(values ~ ind, data = comb)
-#pval <- summary(aov_results)[[1]][["Pr(>F)"]][[1]]
-#pval
+new_log_data <- as.matrix(log_data[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+#rownames(new_log_data)
+anova_pval <- matrix(nrow=nrow(new_log_data), ncol=1) #Produce vector to save p-value
+
+for (i in 1:nrow(new_log_data)) {                              #Perform ANOVA for all genes in the data.
+   anova_pval[i, 1] <- anova(lm(new_log_data[i, ] ~ group))$Pr[1] #Save the p-values
+}
+rownames(anova_pval) <- rownames(new_log_data)
+colnames(anova_pval) <- c('anova_pval')
+anova_vals <- data.frame(cbind(new_log_data, anova_pval))
+anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.000001)
+anova_5s <- dplyr::filter(anova_vals, anova_pval < 0.0000005)
+
+anova_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+heatmap(anova_vals)
+
+
 ###################################################################################
 
 
@@ -150,7 +153,7 @@ library(ggfortify)
 autoplot(pca_results_all)
 
 ## use reduced data with abs(log2FC) > 2 : heat_log_data  above
-# get transpose 8 samples X 525 characteristics (genes)
+## get transpose 8 samples X 525 characteristics (genes)
 ## 
 pca_log_data <- t(as.matrix(heat_log_data))
 pca_results_log_data <- prcomp(pca_log_data, scale = TRUE)
@@ -161,11 +164,7 @@ autoplot(pca_results_log_data)
 ###################################################################################
 
 
-################## θέμα 3: Q4 a-d  ################################################
-## anova
 
-cat_brain <- as.data.frame(stack(log_data$data.1, log_data$data.2))
-#aov_results <- aov(values ~ ind, data = comb)
-#pval <- summary(aov_results)[[1]][["Pr(>F)"]][[1]]
-#pval
-###################################################################################
+
+
+
