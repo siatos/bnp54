@@ -112,29 +112,106 @@ heatmap(heat_log_data_adjusted)
 
 ###################################################################################
 
+
+
 ################## θέμα 3: Q4 a-d  ################################################
 ## anova
+new_log_data <- as.matrix(log_data[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+anova_pval <- matrix(nrow=nrow(new_log_data), ncol=1) #Produce vector to save p-value
+
+anova_data <- list()
+for (i in 1:nrow(new_log_data)) { 
+  data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
+                     values = new_log_data[i, ])
+  summary_data <- summary(aov(values~factor(group), data=data))
+  anova_data[[i]] <- summary_data
+  anova_pval[i, 1] <- summary_data[[1]][["Pr(>F)"]][[1]]
+}
+
+rownames(anova_pval) <- rownames(new_log_data)
+colnames(anova_pval) <- c('anova_pval')
+
+## create a data frame with gene values and calculated p value there will 12616 rows
+anova_vals <- data.frame(cbind(new_log_data, anova_pval))
+
+## select only these with p < 000001
+## and plot heatmap
+anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.000001)
+anova_heatmap_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+heatmap(anova_heatmap_vals)
+
+## select only 5 genes p < 0.0000005
+anova_5s <- dplyr::filter(anova_vals, anova_pval < 0.0000005)
+
+## Tukey 
+new_5_data <- as.matrix(anova_5s[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+
+anova_5_data <- list()
+for (i in 1:nrow(new_5_data)) { 
+  data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
+                     values = new_5_data[i, ])
+  model_data <- aov(values~factor(group), data=data)
+  # anova_5_data[[i]] <- data
+  
+  print(paste("running Tukey for "))
+  #TukeyHSD(anova_5_data[[i]], conf.level=.95)
+  res <- TukeyHSD(model_data, conf.level=.95)
+  #plot(TukeyHSD(model_data, conf.level=.95), las = 2)
+  plot(res, las = 2)
+}
+
+
+
+##summary(anova_data[[1]])
+##data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
+                   values = new_log_data[1, ])
+##data
+##model <- aov(values~factor(group), data=data)
+##summary(model)
+##class(summary(model))
+
+##TukeyHSD(model, conf.level=.95) 
+
+## https://stackoverflow.com/questions/48833004/error-in-tukeyhsd-aovmy-data-no-factors-in-the-fitted-model
+## test 2
+
+
+## test 1_
+#data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
+#                   values = new_log_data[1, ])
+#data
+#model <- aov(values~factor(group), data=data)
+#summary(model)
+#TukeyHSD(model, conf.level=.95) 
+## https://stackoverflow.com/questions/48833004/error-in-tukeyhsd-aovmy-data-no-factors-in-the-fitted-model
+## test 1_
+
+#anova_data <- list()
+
+#  Perform ANOVA for all genes in the data.
+#  Save the p-values in matric anova_pval
+## save all anova results in a list of data frames  
 
 list <- c(1, 1, 2, 2, 3, 3, 4, 4) #set the groups for comparison brain.1-2 = 1 liver1-2 = 2 etc  
 group <- factor(list)
-
 new_log_data <- as.matrix(log_data[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
-#rownames(new_log_data)
 anova_pval <- matrix(nrow=nrow(new_log_data), ncol=1) #Produce vector to save p-value
-
-for (i in 1:nrow(new_log_data)) {                              #Perform ANOVA for all genes in the data.
-   anova_pval[i, 1] <- anova(lm(new_log_data[i, ] ~ group))$Pr[1] #Save the p-values
+for (i in 1:nrow(new_log_data)) {                                 
+   anova_pval[i, 1] <- anova(lm(new_log_data[i, ] ~ group))$Pr[1] 
+   #anova_data[[i]]  <- anova(lm(new_log_data[i, ] ~ group))
 }
+
+
 rownames(anova_pval) <- rownames(new_log_data)
 colnames(anova_pval) <- c('anova_pval')
 anova_vals <- data.frame(cbind(new_log_data, anova_pval))
 anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.000001)
 anova_5s <- dplyr::filter(anova_vals, anova_pval < 0.0000005)
 
-anova_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
-heatmap(anova_vals)
+anova_heatmap_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
+heatmap(anova_heatmap_vals)
 
-
+anova_5s <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
 ###################################################################################
 
 
