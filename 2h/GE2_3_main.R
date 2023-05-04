@@ -150,13 +150,11 @@ anova_5_data <- list()
 for (i in 1:nrow(new_5_data)) { 
   data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
                      values = new_5_data[i, ])
+  ## get anova results for th5 selected genes
   model_data <- aov(values~factor(group), data=data)
-  # anova_5_data[[i]] <- data
-  
-  print(paste("running Tukey for "))
-  #TukeyHSD(anova_5_data[[i]], conf.level=.95)
+  ## run TukeyHSD  
   res <- TukeyHSD(model_data, conf.level=.95)
-  #plot(TukeyHSD(model_data, conf.level=.95), las = 2)
+  ## plot TukeyHSD
   plot(res, las = 2)
 }
 
