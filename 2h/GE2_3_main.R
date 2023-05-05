@@ -79,6 +79,7 @@ ext_log_data <- dplyr::filter(ext_log_data, log2FC > 2)
 ext_log_data <- dplyr::arrange(ext_log_data, desc(log2FC))
 class(ext_log_data)
 colnames(ext_log_data)
+print(sprintf("==== Number of genes with log2FC > 2: %d ====", nrow(ext_log_data)))
 
 ## select all data columns except means and log2FC for heatmap only
 heat_log_data <- ext_log_data[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")]
@@ -107,6 +108,8 @@ ext_log_data_with_adjusted
 ## select all data columns for heatmap only
 heat_log_data_adjusted <- as.matrix(ext_log_data_with_adjusted[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
 
+print(sprintf("==== Number of genes with log2FC > 2 & fdr < 0.05: %d ====", nrow(ext_log_data_with_adjusted)))
+
 ## heatmap of (sorted in desc order) log2 data with abs(log2FC) > 2 and fdr < 0.05
 heatmap(heat_log_data_adjusted)
 
@@ -134,11 +137,23 @@ colnames(anova_pval) <- c('anova_pval')
 ## create a data frame with gene values and calculated p value there will 12616 rows
 anova_vals <- data.frame(cbind(new_log_data, anova_pval))
 
-## select only these with p < 000001
+## select only these with p < 0.00001
 ## and plot heatmap
-anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.000001)
+anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.00001)
+
+print(sprintf("==== Number of genes from anova with p<0.00001: %d ====", nrow(anova_vals)))
+
 anova_heatmap_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
 heatmap(anova_heatmap_vals)
+
+## find genes that have anova pval < 0.00001 & abs(log2FC) > 2
+#anova_vals_names <- rownames(anova_vals)
+anova_vals_names <- strsplit(rownames(anova_vals), " ")
+log2FC_vals_names <- strsplit(rownames(ext_log_data), " ")
+class(anova_vals_names)
+common_vals <- intersect(anova_vals_names , log2FC_vals_names)
+print(sprintf("==== Number of common genes with log2FC > 2 & anova: %d ====", length(common_vals)))
+##
 
 ## select only 5 genes p < 0.0000005
 anova_5s <- dplyr::filter(anova_vals, anova_pval < 0.0000005)
@@ -148,14 +163,17 @@ new_5_data <- as.matrix(anova_5s[c("brain.1", "brain.2", "liver.1", "liver.2", "
 
 anova_5_data <- list()
 for (i in 1:nrow(new_5_data)) { 
-  data <- data.frame(group = rep(c(1, 1, 2, 2, 3, 3, 4, 4), each = 1),
+  data <- data.frame(group = rep(c("abr", "abr", "al", "al", "fbr", "fbr", "fl", "fl"), each = 1),
                      values = new_5_data[i, ])
   ## get anova results for th5 selected genes
   model_data <- aov(values~factor(group), data=data)
   ## run TukeyHSD  
   res <- TukeyHSD(model_data, conf.level=.95)
   ## plot TukeyHSD
+  plotline <- paste("\nplot for", rownames(new_5_data)[i], sep=" ")
+  print(plotline)
   plot(res, las = 2)
+  title(plotline)
 }
 
 ###################################################################################
@@ -164,13 +182,28 @@ for (i in 1:nrow(new_5_data)) {
 ## pca
 # use all data (12626x8): input_data above 
 # get transpose 8 samples X 12626 characteristics (genes)
-input_data
-pca_all_data <- t(as.matrix(input_data))
+class(input_data)
+#pca_all_data <- t(as.matrix(input_data))
+pca_all_data <- t(input_data)
+
 pca_results_all <- prcomp(pca_all_data, scale = TRUE)
 summary(pca_results_all)
 
-library(ggfortify)
-autoplot(pca_results_all)
+library(ggplot2)
+pca.data <- data.frame(Sample=rownames(pca_results_all$x), 
+                       X=pca_results_all$x[,1],
+                       Y=pca_results_all$x[,2])
+pca.data
+pca.var <- pca_results_all$sdev^2
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+ggplot(data=pca.data, aes(x=X, y=Y, label=Sample)) +
+  geom_text() +
+  geom_point() +
+  xlab(paste("PC1 - ", pca.var.per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca.var.per[2], "%", sep="")) +
+  ggtitle("PCA of Initial Input Data")
+
+  
 
 ## use reduced data with abs(log2FC) > 2 : heat_log_data  above
 ## get transpose 8 samples X 525 characteristics (genes)
@@ -178,8 +211,21 @@ autoplot(pca_results_all)
 pca_log_data <- t(as.matrix(heat_log_data))
 pca_results_log_data <- prcomp(pca_log_data, scale = TRUE)
 summary(pca_results_log_data)
-library(ggfortify)
-autoplot(pca_results_log_data)
+
+# display
+library(ggplot2)
+pca.data <- data.frame(Sample=rownames(pca_results_log_data$x), 
+                       X=pca_results_log_data$x[,1],
+                       Y=pca_results_log_data$x[,2])
+pca.data
+pca.var <- pca_results_log_data$sdev^2
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+ggplot(data=pca.data, aes(x=X, y=Y, label=Sample)) +
+  geom_text() +
+  geom_point() +
+  xlab(paste("PC1 - ", pca.var.per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca.var.per[2], "%", sep="")) +
+  ggtitle("PCA of Log Data with abs(log2FC) > 2")
 
 ###################################################################################
 
