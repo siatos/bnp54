@@ -149,14 +149,17 @@ anova_vals <- data.frame(cbind(new_log_data, anova_pval))
 ## select only these with p < 0.00001
 ## and plot heatmap
 anova_vals <- dplyr::filter(anova_vals, anova_pval < 0.00001)
+anova_vals <- dplyr::arrange(anova_vals, desc(anova_pval))
 
 print(sprintf("==== Number of genes from anova with p<0.00001: %d ====", nrow(anova_vals)))
+
+head(anova_vals)
 
 anova_heatmap_vals <- as.matrix(anova_vals[c("brain.1", "brain.2", "liver.1", "liver.2", "fetal.brain.1", "fetal.brain.2", "fetal.liver.1", "fetal.liver.2")])
 heatmap(anova_heatmap_vals)
 
+
 ## find genes that have anova pval < 0.00001 & abs(log2FC) > 2
-#anova_vals_names <- rownames(anova_vals)
 anova_vals_names <- strsplit(rownames(anova_vals), " ")
 log2FC_vals_names <- strsplit(rownames(ext_log_data), " ")
 class(anova_vals_names)
@@ -174,7 +177,7 @@ anova_5_data <- list()
 for (i in 1:nrow(new_5_data)) { 
   data <- data.frame(group = rep(c("abr", "abr", "al", "al", "fbr", "fbr", "fl", "fl"), each = 1),
                      values = new_5_data[i, ])
-  ## get anova results for th5 selected genes
+  ## get anova results for the 5 selected genes
   model_data <- aov(values~factor(group), data=data)
   ## run TukeyHSD  
   res <- TukeyHSD(model_data, conf.level=.95)
