@@ -1,28 +1,37 @@
-# full path for the needed input file
-# needs to be adjusted accordingly
-exercise_txt_path <- "C:/Users/siatos/Desktop/pae/bnp54/GE/GE2/Rcode/GE2_3/exercise2.txt"
+## full path for the needed input file
+## needs to be (can be) adjusted accordingly
+## here we use "root" folder C:/
+
+exercise_txt_path <- "C:/exercise2.txt"
 
 ################## θέμα 3: Q1 a-c  ###############################################
 library(readr)
-#read file input data in a data frame
+## read file input data in a data frame
 input_data_df <- read.table(exercise_txt_path, sep="\t", header=TRUE)
 class(input_data_df)
 ## get gene names as a vector
 gene_names <- as.matrix(input_data_df$ProbeID)
 
-# data frame - keep only numerical data
+## data frame - keep only numerical data
 input_data <- input_data_df[, unlist(lapply(input_data_df, is.numeric), use.names = FALSE)]
 rownames(input_data) <- gene_names
 class(input_data)
 
-# get first 100 rows from input data
+##  get first 100 rows from input data
 input_data_100 <- head(input_data, n=100)
-class(input_data_100)
+
 ## convert data frame of first 100 into a numeric matrix and get heatmap
 ## (for any heatmap usually matrix = genes(rows) X samples(columns))
-heatmap(as.matrix(sapply(input_data_100, as.numeric)))
+## get also the gene names for the heatmap display 
+input_data_100 <- as.matrix(sapply(input_data_100, as.numeric))
+gene_names_100 <- as.matrix(head(gene_names, n=100))
+
+## add rownames for heatmap display
+rownames(input_data_100) <- gene_names_100
+
+#heatmap(as.matrix(sapply(input_data_100, as.numeric)))
+heatmap(input_data_100)
 boxplot(input_data_100, xlab="samples ", ylab="values in Genes", main="sample boxplot - only 100 genes")
-#boxplot(input_data, xlab="samples ", ylab="values in Genes", main="sample boxplot - only 100 genes")
 
 ###################################################################################
 
@@ -228,9 +237,4 @@ ggplot(data=pca.data, aes(x=X, y=Y, label=Sample)) +
   ggtitle("PCA of Log Data with abs(log2FC) > 2")
 
 ###################################################################################
-
-
-
-
-
 
