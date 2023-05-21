@@ -44,8 +44,8 @@ transp_input_data <- t(input_data)
 tsne_out <- Rtsne(transp_input_data, perplexity = 20, dim=2) # Run TSNE
 tsne_out$Y
 
-# apply correlation the transposed data
-# cor_data matrix is a 8594x894 matrix
+# apply correlation to the transposed data
+# cor_data matrix is a 8594x8594 matrix
 cor_data <- cor(transp_input_data)
 
 # save corr data into a tmp triangular matrix  set lower part and diagonal to 0
