@@ -20,9 +20,9 @@ input_data <- dplyr::select(in_data, -1)
 # use as a data frame
 input_data <- as.data.frame(t(input_data))
 
-# use below to rows columns that have NA value
+# use below to display rows columns that have NA value
 # which(is.na(input_data), arr.ind=TRUE)
-# create a motrix with rows having a NA value somewhere
+# create a matrix with rows having a NA value somewhere
 # test <- input_data[unique(which(is.na(input_data), arr.ind=TRUE)[,1]),]
 
 # omit rows from input data having NA values
