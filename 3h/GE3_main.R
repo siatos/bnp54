@@ -43,6 +43,8 @@ library(Rtsne)
 transp_input_data <- t(input_data)
 tsne_out <- Rtsne(transp_input_data, perplexity = 20, dim=2) # Run TSNE
 tsne_out$Y
+plot(tsne_out$Y[, 1] ~ tsne_out$Y[, 2], pch = 19, col = "black")
+#scatterplot3d::scatterplot3d(tsne_out_corr$Y)
 
 # apply correlation to the transposed data
 # cor_data matrix is a 8594x8594 matrix
@@ -50,21 +52,32 @@ cor_data <- cor(transp_input_data)
 
 # save corr data into a tmp triangular matrix  set lower part and diagonal to 0
 tmp <- cor_data
-tmp[lower.tri(tmp)] <- 0
+tmp[upper.tri(tmp)] <- 0
 diag(tmp) <- 0
 
 # exclude columns where correllation > 0.5
-selected_data <- transp_input_data[, !apply(tmp, 2, function(x) any(abs(x) > 0.5, na.rm = TRUE))]
+# selected_data <- transp_input_data[, !apply(tmp, 2, function(x) any(abs(x) > 0.5, na.rm = TRUE))]
+selected_data <- transp_input_data[, !apply(tmp, 2, function(x) any(x > 0.5, na.rm = TRUE))]
 selected_data_rows <- nrow(selected_data)
 selected_data_cols <- ncol(selected_data)
 print(paste("genes found with corr < 0.5 :", selected_data_cols))
 #head(selected_data)
 tsne_out_corr <- Rtsne(selected_data, perplexity = 20, dim=2) # Run TSNE
 tsne_out_corr$Y
+plot(tsne_out$Y[, 1] ~ tsne_out$Y[, 2], pch = 19, col = "red")
+#scatterplot3d::scatterplot3d(tsne_out_corr$Y)
 
 # Thema 2
-set.seed(0) 
+set.seed(1) 
 library(factoextra)
 library(cluster)
 scaled_data <- scale(transp_input_data)
+
+#te <- dplyr::select(result, -1)
+#te <- as.data.frame(t(te))
+#te <- na.omit(te)
+#class(te)
+#te <- as.matrix(sapply(te, as.numeric))
+#scaled_data <- scale(te)
+
 fviz_nbclust(scaled_data, kmeans, method = "wss")
