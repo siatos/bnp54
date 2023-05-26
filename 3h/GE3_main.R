@@ -146,4 +146,5 @@ plot(hc1, cex = 0.6, hang = -1, main="Dendrogram sne Data -samples 66 x 2")
 
 # Thema 3
 # need to install
-BiocManager::install("randomForest")
+#BiocManager::install("randomForest")
+
