@@ -71,10 +71,10 @@ plot(tsne_out$Y[, 1] ~ tsne_out$Y[, 2], pch = 20, col = "red")
 
 library(caret)
 data <- in_data
-data <- lapply(data, as.numeric)
+data[] <- lapply(data, as.numeric)
 data <- as.data.frame(data)
 Diagnosis <- as.factor(Diagnosis)
-data <- cbind(in_data, Diagnosis)
+data <- cbind(data, Diagnosis)
 
 inTraining <- caret::createDataPartition(data$Diagnosis, p = .75, list = FALSE)
 
@@ -83,32 +83,95 @@ testing  <- data[-inTraining, ]
 
 print(levels(training$Diagnosis))
 
+x_train <- training[,1:ncol(training)-1]  # data[idxs,1:4]
+y_train <- training[ , ncol(training)]    # training$Diagmosis  
+x_test  <- testing[, 1:ncol(testing)-1]    # data[-idxs,1:4]
+y_test  <- testing[, ncol(testing)]       # testing$Diagmosis   
+
+
 ## 10-fold CV repeated 10 times
 fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
 
 names(data)
-model_knn1 <- train(training[,1:ncol(training)-1], training$Diagnosis, method='knn', trControl = fitControl)
 
-set.seed(825)
+set.seed(1)
 
-model_knn2 <- train(Diagnosis ~ ., 
-                   data = data, 
-                   method = "knn", 
-                   trControl = fitControl)
-
-#names(getModelInfo())
-
-model_knn <- train(X_train, y_train, method='knn')
-prediction_knn<-predict.train(object=model_knn, X_test, type="raw")
-table(prediction_knn)
+model_knn <- train(x_train, y_train, method='knn', trControl = fitControl)
+prediction_knn <- predict.train(object=model_knn, x_test, type="raw")
 table(prediction_knn, y_test)
 confusionMatrix(prediction_knn, as.factor(y_test))
-# Train an SVM
-model_svm <- train(X_train, y_train, method='svmLinear')
-predict_svm<-predict.train(object=model_svm, X_test, type="raw")
-table(predict_svm)
-table(predict_svm, y_test)
-#confusionMatrix(predict_svm,y_test)
+
+set.seed(1)
+
+#y_train <- as.numeric(y_train)
+#y_test  <- as.numeric(y_test)
+model_svm <- train(x_train, y_train, method='svmLinear', trControl = fitControl)
+prediction_svm <- predict.train(object=model_svm, x_test, type="raw")
+table(prediction_svm, y_test)
+confusionMatrix(prediction_svm, as.factor(y_test))
+
+model_rf <- train(x_train, y_train, method='rf', trControl = fitControl)
+prediction_rf <- predict.train(object=model_rf, x_test, type="raw")
+table(prediction_rf, y_test)
+confusionMatrix(prediction_rf, as.factor(y_test))
+
+
+
+####################################################
+library(caret)
+#names(getModelInfo())
+
+data <- in_data
+data[] <- lapply(data, as.numeric)
+data <- as.data.frame(data)
+Diagnosis <- as.factor(Diagnosis)
+data <- cbind(data, Diagnosis)
+
+#inTraining <- caret::createDataPartition(data$Diagnosis, p = .75, list = FALSE)
+
+#training <- data[inTraining, ]
+#testing  <- data[-inTraining, ]
+
+print(levels(data$Diagnosis))
+
+#x_train <- training[,1:ncol(training)-1]  # data[idxs,1:4]
+#y_train <- training[ , ncol(training)]    # training$Diagmosis  
+#x_test  <- testing[, 1:ncol(testing)-1]    # data[-idxs,1:4]
+#y_test  <- testing[, ncol(testing)]       # testing$Diagmosis   
+
+
+## 10-fold CV repeated 10 times
+fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10, summaryFunction = twoClassSummary)
+
+names(data)
+
+set.seed(1)
+
+model_knn1 <- train(data[,1:ncol(data)-1], data[,ncol(data)], method='knn', trControl = fitControl, metric = "Sens")
+
+fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
+model_knn2 <- train(data[,1:ncol(data)-1], data[,ncol(data)], method='knn', trControl = fitControl)
+
+prediction_knn <- predict.train(object=model_knn, x_test, type="raw")
+table(prediction_knn, y_test)
+confusionMatrix(prediction_knn, as.factor(y_test))
+
+set.seed(1)
+
+#y_train <- as.numeric(y_train)
+#y_test  <- as.numeric(y_test)
+model_svm <- train(x_train, y_train, method='svmLinear', trControl = fitControl)
+prediction_svm <- predict.train(object=model_svm, x_test, type="raw")
+table(prediction_svm, y_test)
+confusionMatrix(prediction_svm, as.factor(y_test))
+
+model_rf <- train(x_train, y_train, method='rf', trControl = fitControl)
+prediction_rf <- predict.train(object=model_rf, x_test, type="raw")
+table(prediction_rf, y_test)
+confusionMatrix(prediction_rf, as.factor(y_test))
+#set.seed(825)
+
+#############################################################################################
 
 
 ## Thema 2
