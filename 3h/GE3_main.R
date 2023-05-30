@@ -121,8 +121,7 @@ algorithm.rf <- c(rf_result[["overall"]][["Accuracy"]], rf_result$byClass['Preci
 algorithms <- rbind(algorithm.knn, algorithm.svm, algorithm.rf)
 #algorithms <- as.data.frame(algorithms)
 colnames(algorithms) <- c("", "", "")
-#algorithms
-algorithms <- as.matrix(algorithms)
+algorithms
 
 boxplot(algorithms, 
         beside=TRUE, 
