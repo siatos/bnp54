@@ -71,7 +71,7 @@ plot(tsne_out$Y[, 1] ~ tsne_out$Y[, 2], pch = 20, col = "red")
 
 library(caret)
 data <- in_data
-data[] <- lapply(data, as.numeric)
+data[] <- lapply(data, as.numeric)  ## convert to numeric
 data <- as.data.frame(data)
 Diagnosis <- as.factor(Diagnosis)
 data <- cbind(data, Diagnosis)
@@ -88,90 +88,54 @@ y_train <- training[ , ncol(training)]    # training$Diagmosis
 x_test  <- testing[, 1:ncol(testing)-1]    # data[-idxs,1:4]
 y_test  <- testing[, ncol(testing)]       # testing$Diagmosis   
 
+# prepare the matrix for results
+algorithm.knn <- c(0, 0, 0)
+algorithm.svm <- c(0, 0, 0)
+algorithm.rf  <- c(0, 0, 0)
 
 ## 10-fold CV repeated 10 times
 fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
 
-names(data)
-
 set.seed(1)
-
 model_knn <- train(x_train, y_train, method='knn', trControl = fitControl)
 prediction_knn <- predict.train(object=model_knn, x_test, type="raw")
 table(prediction_knn, y_test)
-confusionMatrix(prediction_knn, as.factor(y_test))
+knn_result  <- confusionMatrix(prediction_knn, as.factor(y_test))
+knn_result$byClass
+algorithm.knn <- c(knn_result[["overall"]][["Accuracy"]], knn_result$byClass['Precision'], knn_result$byClass['Recall'])
 
-set.seed(1)
-
-#y_train <- as.numeric(y_train)
-#y_test  <- as.numeric(y_test)
 model_svm <- train(x_train, y_train, method='svmLinear', trControl = fitControl)
 prediction_svm <- predict.train(object=model_svm, x_test, type="raw")
 table(prediction_svm, y_test)
-confusionMatrix(prediction_svm, as.factor(y_test))
+svm_result  <- confusionMatrix(prediction_svm, as.factor(y_test))
+svm_result$byClass
+algorithm.svm <- c(svm_result[["overall"]][["Accuracy"]], svm_result$byClass['Precision'], svm_result$byClass['Recall'])
 
 model_rf <- train(x_train, y_train, method='rf', trControl = fitControl)
 prediction_rf <- predict.train(object=model_rf, x_test, type="raw")
 table(prediction_rf, y_test)
-confusionMatrix(prediction_rf, as.factor(y_test))
+rf_result  <- confusionMatrix(prediction_rf, as.factor(y_test))
+rf_result$byClass
+algorithm.rf <- c(rf_result[["overall"]][["Accuracy"]], rf_result$byClass['Precision'], rf_result$byClass['Recall'])
 
+algorithms <- rbind(algorithm.knn, algorithm.svm, algorithm.rf)
+#algorithms <- as.data.frame(algorithms)
+colnames(algorithms) <- c("", "", "")
+#algorithms
+algorithms <- as.matrix(algorithms)
 
+boxplot(algorithms, 
+        beside=TRUE, 
+        col = c("yellow", "blue", "red"), 
+        main = "Algorithm metrics", 
+        xlab="Algorithms", 
+        ylab="Metrics Values")
+        legend("top", legend = c("Accuracy", "Precision", "Recall"), fill = c("yellow", "blue", "red"))
+        
+
+        
 
 ####################################################
-library(caret)
-#names(getModelInfo())
-
-data <- in_data
-data[] <- lapply(data, as.numeric)
-data <- as.data.frame(data)
-Diagnosis <- as.factor(Diagnosis)
-data <- cbind(data, Diagnosis)
-
-#inTraining <- caret::createDataPartition(data$Diagnosis, p = .75, list = FALSE)
-
-#training <- data[inTraining, ]
-#testing  <- data[-inTraining, ]
-
-print(levels(data$Diagnosis))
-
-#x_train <- training[,1:ncol(training)-1]  # data[idxs,1:4]
-#y_train <- training[ , ncol(training)]    # training$Diagmosis  
-#x_test  <- testing[, 1:ncol(testing)-1]    # data[-idxs,1:4]
-#y_test  <- testing[, ncol(testing)]       # testing$Diagmosis   
-
-
-## 10-fold CV repeated 10 times
-fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10, summaryFunction = twoClassSummary)
-
-names(data)
-
-set.seed(1)
-
-model_knn1 <- train(data[,1:ncol(data)-1], data[,ncol(data)], method='knn', trControl = fitControl, metric = "Sens")
-
-fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
-model_knn2 <- train(data[,1:ncol(data)-1], data[,ncol(data)], method='knn', trControl = fitControl)
-
-prediction_knn <- predict.train(object=model_knn, x_test, type="raw")
-table(prediction_knn, y_test)
-confusionMatrix(prediction_knn, as.factor(y_test))
-
-set.seed(1)
-
-#y_train <- as.numeric(y_train)
-#y_test  <- as.numeric(y_test)
-model_svm <- train(x_train, y_train, method='svmLinear', trControl = fitControl)
-prediction_svm <- predict.train(object=model_svm, x_test, type="raw")
-table(prediction_svm, y_test)
-confusionMatrix(prediction_svm, as.factor(y_test))
-
-model_rf <- train(x_train, y_train, method='rf', trControl = fitControl)
-prediction_rf <- predict.train(object=model_rf, x_test, type="raw")
-table(prediction_rf, y_test)
-confusionMatrix(prediction_rf, as.factor(y_test))
-#set.seed(825)
-
-#############################################################################################
 
 
 ## Thema 2
