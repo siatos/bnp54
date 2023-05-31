@@ -67,6 +67,50 @@ plot(tsne_out$Y[, 1] ~ tsne_out$Y[, 2], pch = 20, col = "red")
 
 
 
+# Thema 3
+# need to install
+#BiocManager::install("randomForest")
+# Set RFE control
+
+data <- in_data
+data[] <- lapply(data, as.numeric)  ## convert to numeric
+data <- as.data.frame(data)
+Diagnosis <- as.factor(Diagnosis)
+data <- cbind(data, Diagnosis)
+
+ctrl = rfeControl(functions = rfFuncs, # "rfFuncs" are built-in to caret
+                  method = "repeatedcv", repeats = 10,
+                  saveDetails = TRUE)
+# By using rfFuncs, caret will use a random forest to evaluate the usefulness of a feature.
+# Set a sequence sizes to search
+sizes=c(50, 75, 100, 150, 200, 300, 400, 500, 600, 1000)
+
+# Use caret's rfe function to fit RF models to these different feature spaces
+rfeResults = rfe(x = data[,1:ncol(data)-1], y = data[,ncol(data)],
+                 sizes = sizes,
+                 rfeControl = ctrl)
+
+
+#rfeResults = rfe(x = select(nonColinearData, -Depressiv), y = nonColinearData$Depressiv,
+#                 sizes = sizes,
+#                 rfeControl = ctrl)
+
+
+rfeResults$results
+ggplot(data = rfeResults, metric = "Accuracy") + theme_bw()
+ggplot(data = rfeResults, metric = "Kappa") + theme_bw()
+
+X <- rfeResults$variables
+Y <- X[X$Variables == 1000, ]
+Y <- Y[Y$Resample == "Fold01.Rep01", ]
+final_data <- in_data[, Y$var]
+
+
+
+#f = rfeResults.get_support(1) #the most important features
+#X = data[data.columns[f]]
+
+
 ## Thema 4
 
 library(caret)
@@ -180,7 +224,4 @@ hc1 <- hclust(d, method = "single" )
 plot(hc1, cex = 0.6, hang = -1, main="Dendrogram sne Data -samples 66 x 2")
 
 
-# Thema 3
-# need to install
-#BiocManager::install("randomForest")
 
