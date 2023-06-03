@@ -45,6 +45,7 @@ tsne_data <- as.matrix(sapply(in_data, as.numeric))
 library(Rtsne)
 tsne_out <- Rtsne(tsne_data, perplexity = 20, dim=2) # Run TSNE
 tsne_plot <- data.frame(x = tsne_out$Y[ ,1], y = tsne_out$Y[, 2], col = Diagnosis) 
+library(ggplot2)
 ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("blue", "red"))
 
 
@@ -70,7 +71,7 @@ print(paste("Selected Data ", nrow(selected_data), "X", ncol(selected_data)))
 ## apply Rtsne to the selected of the input data (corr <= 0.5)
 tsne_out_corr <- Rtsne(selected_data, perplexity = 20, dim=2) # Run TSNE
 tsne_plot <- data.frame(x = tsne_out_corr$Y[,1], y = tsne_out_corr$Y[,2], col = Diagnosis) 
-ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("black", "yellow"))
+ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("blue", "red"))
 
 
 ####################################################
@@ -157,7 +158,7 @@ selected_1000 <- in_data[, Y_1000]
 
 tsne_1000 <- Rtsne(selected_1000, perplexity = 20, dim=2) # Run TSNE
 tsne_plot <- data.frame(x = tsne_1000$Y[,1], y = tsne_1000$Y[,2], col = Diagnosis) 
-ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("green", "blue"))
+ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("blue", "red"))
 
 
 
