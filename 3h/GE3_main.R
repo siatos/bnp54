@@ -1,3 +1,5 @@
+########################################################################################
+##
 ## Thema 1
 library(GEOquery)
 gse2553 <- getGEO('GSE2553',GSEMatrix=TRUE)
@@ -74,53 +76,91 @@ tsne_plot <- data.frame(x = tsne_out_corr$Y[,1], y = tsne_out_corr$Y[,2], col = 
 ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("blue", "red"))
 
 
-####################################################
+########################################################################################
 
 
+########################################################################################
+##
 ## Thema 2
 set.seed(1) 
 ## scale selected data (66x8459)
-## 
 scaled_data <- sapply(in_data, as.numeric)
 scaled_data <- scale(scaled_data)
 rownames(scaled_data) <- row.names(in_data)
 print(paste("scaled selected data, rows:", nrow(scaled_data), " columns:", ncol(scaled_data)))
 
-print("Find best kmeans cluster separation  k = 1..12 scaled selected data")
-scaled_result <- factoextra::fviz_nbclust(scaled_data, kmeans, method = "wss", k.max = 12)
-scaled_result
-scaled_result$data
+##
+## apply k-means 
+print("Find best kmeans cluster separation  k = 1..12 on scaled selected data")
+scaled_result1 <- factoextra::fviz_nbclust(scaled_data, kmeans, method = "wss", k.max = 12)
+scaled_result1
+scaled_result1$data
 
-## run k-means for scale data & cluster centers
-km_selected_scaled <- kmeans(scaled_data, centers = 6, nstart = 25)
+## run kmeans for scaled data & cluster centers
+## select k=6 as the optimal solution - previous elbow plot 
+##
+km_res <- kmeans(scaled_data, centers = 6, nstart = 25)
 ## display clusters
-clusters_inf_scaled <- factoextra::fviz_cluster(km_selected_scaled, data = scaled_data)
-clusters_inf_scaled
-
+kmclusters <- factoextra::fviz_cluster(km_res, data = scaled_data)
+kmclusters
 
 ##
-# Dissimilarity matrix
-d <- dist(scaled_data, method = "euclidean")
-# Hierarchical clustering using single Linkage
-hc1 <- hclust(d, method = "single" )
+## apply agglomerative hcl
+# 
+library("cluster")
+set.seed(1)
+#res.agnes <- agnes(x = scaled_data, stand = TRUE, metric = "euclidean",  method = "single")   
+#agnes.grps <- cutree(res.agnes, 2:12)
+#agnes.SS <- aggregate(scaled_data, by=list(agnes.grps[, 1]), function(x) sum(scale(x, scale=FALSE)^2))
 
-# Plot the obtained dendrogram
-plot(hc1, cex = 0.6, hang = -1,  main="Dendrogram Scaled Data - samples 66x8594")
+x <- scaled_data
+res.agnes <- agnes(x, stand = TRUE, metric = "euclidean",  method = "single")   
+x.grps <- cutree(res.agnes, 2:12)
+res_m <- matrix(1:11, nrow = 11, ncol = 2)
+for (i in 1:11) {
+  x.SS <- aggregate(x, by=list(x.grps[, i]), function(x) sum(scale(x, scale=FALSE)^2))
+  SS <- rowSums(x.SS[, -1]) # Sum of squares for each cluster
+  TotalSS <- sum(x.SS[, -1])  # Total (within) sum of squares
+  res_m[i, 1] <- i+1
+  res_m[i, 2] <- TotalSS
+}
+res_m
+library(ggplot2)
+plot_data <- data.frame(X=as.factor(res_m[,1]), Y=res_m[,2])
+ggplot(plot_data, aes(x = X, y = Y, group = 1)) +
+  geom_line() +
+  geom_point()+
+  xlab("no of Clusters") +
+  ylab("wss") 
 
-scaled_tsne <- as.data.frame(scale(tsne_out$Y))
-rownames(scaled_tsne) <- row.names(in_data)
-factoextra::fviz_nbclust(scaled_tsne, kmeans, method = "wss", k.max = 12)
-km_sne <- kmeans(scaled_tsne, centers = 5, nstart = 25)
-factoextra::fviz_cluster(km_sne, data = scaled_tsne)
+hc_res <- hcut(scaled_data, k = 9, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
+kcolors <- c("blue", "yellow", "magenta", "green", "black", "red", "yellow", "pink", "orange")
 
-d <- dist(scaled_data, method = "euclidean")
-hc1 <- hclust(d, method = "single" )
-
-# Plot the obtained dendrogram
-plot(hc1, cex = 0.6, hang = -1, main="Dendrogram sne Data -samples 66 x 2")
+factoextra::fviz_dend(hc_res, k = 9, # Cut in four groups
+                      cex = 0.5, # label size
+                      k_colors = kcolors,
+                      color_labels_by_k = TRUE, # color labels by groups
+                      rect = TRUE, # Add rectangle around groups
+                      rect_fill = TRUE)
 
 
 
+## apply k-means on tsne results
+##
+rownames(tsne_out$Y) <- row.names(in_data)
+tsne_result <- factoextra::fviz_nbclust(tsne_out$Y, kmeans, method = "wss", k.max = 12)
+tsne_result
+km_tsne <- kmeans(tsne_out$Y, centers = 4, nstart = 25)
+## display clusters
+clusters_tsne <- factoextra::fviz_cluster(km_tsne, data = as.data.frame(tsne_out$Y))
+clusters_tsne
+
+##
+########################################################################################
+
+
+########################################################################################
+##
 ## Thema 3
 ## Set RFE control
 
@@ -161,7 +201,12 @@ tsne_plot <- data.frame(x = tsne_1000$Y[,1], y = tsne_1000$Y[,2], col = Diagnosi
 ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position="right") + scale_color_manual(values = c("blue", "red"))
 
 
+########################################################################################
 
+
+
+########################################################################################
+##
 ## Thema 4
 
 library(caret)
@@ -227,7 +272,8 @@ boxplot(algorithms,
         legend("top", legend = c("Accuracy", "Precision", "Recall"), fill = c("yellow", "blue", "red"))
         
 
-        
+########################################################################################
+
 
 
 
