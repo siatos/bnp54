@@ -83,7 +83,7 @@ ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=col)) + theme(legend.position
 ##
 ## Thema 2
 set.seed(1) 
-## scale selected data (66x8459)
+## scale selected data (66x8594)
 scaled_data <- sapply(in_data, as.numeric)
 scaled_data <- scale(scaled_data)
 rownames(scaled_data) <- row.names(in_data)
@@ -92,14 +92,14 @@ print(paste("scaled selected data, rows:", nrow(scaled_data), " columns:", ncol(
 ##
 ## apply k-means 
 print("Find best kmeans cluster separation  k = 1..12 on scaled selected data")
-scaled_result1 <- factoextra::fviz_nbclust(scaled_data, kmeans, method = "wss", k.max = 12)
-scaled_result1
-scaled_result1$data
+scaled_result <- factoextra::fviz_nbclust(scaled_data, kmeans, method = "wss", k.max = 12)
+scaled_result
+scaled_result$data
 
 ## run kmeans for scaled data & cluster centers
-## select k=6 as the optimal solution - previous elbow plot 
+## select k=7 as the optimal solution - previous elbow plot 
 ##
-km_res <- kmeans(scaled_data, centers = 6, nstart = 25)
+km_res <- kmeans(scaled_data, centers = 7, nstart = 25)
 ## display clusters
 kmclusters <- factoextra::fviz_cluster(km_res, data = scaled_data)
 kmclusters
@@ -109,18 +109,15 @@ kmclusters
 # 
 library("cluster")
 set.seed(1)
-#res.agnes <- agnes(x = scaled_data, stand = TRUE, metric = "euclidean",  method = "single")   
-#agnes.grps <- cutree(res.agnes, 2:12)
-#agnes.SS <- aggregate(scaled_data, by=list(agnes.grps[, 1]), function(x) sum(scale(x, scale=FALSE)^2))
 
-x <- scaled_data
-res.agnes <- agnes(x, stand = TRUE, metric = "euclidean",  method = "single")   
+x<- sapply(in_data, as.numeric) #x <- scaled_data
+res.agnes <- agnes(x, diss = FALSE,stand = TRUE, metric = "euclidean",  method = "single")   
 x.grps <- cutree(res.agnes, 2:12)
-res_m <- matrix(1:11, nrow = 11, ncol = 2)
+res_m <- matrix(0, nrow = 11, ncol = 2)
 for (i in 1:11) {
   x.SS <- aggregate(x, by=list(x.grps[, i]), function(x) sum(scale(x, scale=FALSE)^2))
-  SS <- rowSums(x.SS[, -1]) # Sum of squares for each cluster
-  TotalSS <- sum(x.SS[, -1])  # Total (within) sum of squares
+  SS <- rowSums(x.SS[, -1])   # Sum of squares for each cluster
+  TotalSS <- sum(x.SS[, -1])  # wss 
   res_m[i, 1] <- i+1
   res_m[i, 2] <- TotalSS
 }
@@ -133,10 +130,13 @@ ggplot(plot_data, aes(x = X, y = Y, group = 1)) +
   xlab("no of Clusters") +
   ylab("wss") 
 
-hc_res <- hcut(scaled_data, k = 9, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
-kcolors <- c("blue", "yellow", "magenta", "green", "black", "red", "yellow", "pink", "orange")
+hc_res <- factoextra::hcut(scaled_data, k = 7, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
+kcolors <- c("blue", "yellow", "magenta", "green", "black", "red", "yellow")
+#kcolors <- c("blue", "yellow", "magenta", "gray", "green", "black", "red", "pink", "orange", "purple")
 
-factoextra::fviz_dend(hc_res, k = 9, # Cut in four groups
+##
+## display dendrogram
+factoextra::fviz_dend(hc_res, k = 7, # Cut in 7 groups
                       cex = 0.5, # label size
                       k_colors = kcolors,
                       color_labels_by_k = TRUE, # color labels by groups
@@ -144,6 +144,8 @@ factoextra::fviz_dend(hc_res, k = 9, # Cut in four groups
                       rect_fill = TRUE)
 
 
+p1 <- factoextra::fviz_nbclust(scaled_data, FUN = factoextra::hcut, method = "wss", k.max = 11) + ggtitle("(A) Elbow method")
+p1
 
 ## apply k-means on tsne results
 ##
@@ -163,7 +165,7 @@ clusters_tsne
 ##
 ## Thema 3
 ## Set RFE control
-
+set.seed(4300) #1200
 library(caret)
 data <- in_data
 data[] <- lapply(data, as.numeric)  ## convert to numeric
@@ -172,13 +174,14 @@ data <- as.data.frame(data)
 data <- cbind(data, Diagnosis)
 
 ctrl = rfeControl(functions = rfFuncs, # "rfFuncs" are built-in to caret
-                  method = "repeatedcv", repeats = 10,
+                  method = "repeatedcv", repeats = 5,
                   saveDetails = TRUE)
 
 # By using rfFuncs, caret will use a random forest to evaluate features
 # Set a sequence sizes to search
 
-sizes=c(50, 75, 100, 150, 200, 300, 400, 500, 600, 1000)
+#sizes=c(50, 75, 100, 150, 200, 300, 400, 500, 600, 1000)
+sizes=c(50, 200, 500, 1000)
 
 # Use caret's rfe function to fit RF models to these different feature spaces
 rfeResults = rfe(x = data[,1:ncol(data)-1], y = data[,ncol(data)],
@@ -234,9 +237,12 @@ algorithm.svm <- c(0, 0, 0)
 algorithm.rf  <- c(0, 0, 0)
 
 ## 10-fold CV repeated 10 times
-fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
+## fitControl <- trainControl( method = "repeatedcv", number = 10, repeats = 10)
+## 5-fold CV repeated 5 times
+fitControl <- trainControl( method = "repeatedcv", number = 5, repeats = 5)
 
-set.seed(1)
+
+set.seed(121)
 model_knn <- train(x_train, y_train, method='knn', trControl = fitControl)
 prediction_knn <- predict.train(object=model_knn, x_test, type="raw")
 table(prediction_knn, y_test)
