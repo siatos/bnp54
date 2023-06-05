@@ -135,7 +135,7 @@ kcolors <- c("blue", "yellow", "magenta", "gray", "green", "black", "red", "pink
 
 ##
 ## display dendrogram
-factoextra::fviz_dend(hc_res, k = 10, # Cut in 7 groups
+factoextra::fviz_dend(hc_res, k = 10, # Cut in 10 groups
                       cex = 0.5, # label size
                       k_colors = kcolors,
                       color_labels_by_k = TRUE, # color labels by groups
