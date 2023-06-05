@@ -130,13 +130,12 @@ ggplot(plot_data, aes(x = X, y = Y, group = 1)) +
   geom_point()+
   xlab("no of Clusters") +
   ylab("wss") 
-hc_res <- factoextra::hcut(x, k = 7, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
-kcolors <- c("blue", "yellow", "magenta", "green", "black", "red", "yellow")
-#kcolors <- c("blue", "yellow", "magenta", "gray", "green", "black", "red", "pink", "orange", "purple")
+hc_res <- factoextra::hcut(x, k = 10, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
+kcolors <- c("blue", "yellow", "magenta", "gray", "green", "black", "red", "pink", "orange", "purple")
 
 ##
 ## display dendrogram
-factoextra::fviz_dend(hc_res, k = 7, # Cut in 7 groups
+factoextra::fviz_dend(hc_res, k = 10, # Cut in 7 groups
                       cex = 0.5, # label size
                       k_colors = kcolors,
                       color_labels_by_k = TRUE, # color labels by groups
