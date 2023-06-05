@@ -39,10 +39,10 @@ print(paste("In Data (after removing classes) ", nrow(in_data), "X", ncol(in_dat
 sample_names <- row.names(in_data)
 gene_ids <- as.matrix(colnames(in_data)) 
 
-
 ##  get only numeric
 ## 
 ## we need to have in_data as a simple matrix for the tsne function to work
+set.seed(4300)
 tsne_data <- as.matrix(sapply(in_data, as.numeric))
 library(Rtsne)
 tsne_out <- Rtsne(tsne_data, perplexity = 20, dim=2) # Run TSNE
@@ -69,7 +69,7 @@ selected_data_cols <- ncol(selected_data)
 ## selected data is 66x413
 print(paste("applying abs(corr) should be <0.5 results in ", selected_data_cols, "genes found"))
 print(paste("Selected Data ", nrow(selected_data), "X", ncol(selected_data)))
-
+set.seed(4300)
 ## apply Rtsne to the selected of the input data (corr <= 0.5)
 tsne_out_corr <- Rtsne(selected_data, perplexity = 20, dim=2) # Run TSNE
 tsne_plot <- data.frame(x = tsne_out_corr$Y[,1], y = tsne_out_corr$Y[,2], col = Diagnosis) 
