@@ -111,6 +111,7 @@ library("cluster")
 set.seed(1)
 
 x<- sapply(in_data, as.numeric) #x <- scaled_data
+rownames(x) <-row.names(in_data)
 res.agnes <- agnes(x, diss = FALSE,stand = TRUE, metric = "euclidean",  method = "single")   
 x.grps <- cutree(res.agnes, 2:12)
 res_m <- matrix(0, nrow = 11, ncol = 2)
@@ -129,8 +130,7 @@ ggplot(plot_data, aes(x = X, y = Y, group = 1)) +
   geom_point()+
   xlab("no of Clusters") +
   ylab("wss") 
-
-hc_res <- factoextra::hcut(scaled_data, k = 7, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
+hc_res <- factoextra::hcut(x, k = 7, hc_func = "agnes", hc_method = "single", hc_metric = "euclidean")
 kcolors <- c("blue", "yellow", "magenta", "green", "black", "red", "yellow")
 #kcolors <- c("blue", "yellow", "magenta", "gray", "green", "black", "red", "pink", "orange", "purple")
 
